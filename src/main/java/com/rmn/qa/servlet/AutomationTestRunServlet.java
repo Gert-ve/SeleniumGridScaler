@@ -25,8 +25,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.beust.jcommander.internal.Lists;
 import org.apache.commons.lang3.StringUtils;
+import org.openqa.grid.internal.GridRegistry;
 import org.openqa.grid.internal.ProxySet;
-import org.openqa.grid.internal.Registry;
 import org.openqa.grid.selenium.GridLauncherV3;
 import org.openqa.grid.web.servlet.RegistryBasedServlet;
 import org.openqa.selenium.Platform;
@@ -82,7 +82,7 @@ public class AutomationTestRunServlet extends RegistryBasedServlet implements Re
      * @param ec2 EC2 implementation that you wish to use
      * @param requestMatcher RequestMatcher implementation you wish you use
      */
-    public AutomationTestRunServlet(Registry registry, boolean initThreads, VmManager ec2, RequestMatcher requestMatcher) {
+    public AutomationTestRunServlet(GridRegistry registry, boolean initThreads, VmManager ec2, RequestMatcher requestMatcher) {
         super(registry);
         setManageEc2(ec2);
         setRequestMatcher(requestMatcher);
@@ -329,7 +329,7 @@ public class AutomationTestRunServlet extends RegistryBasedServlet implements Re
     }
 
     @Override
-    public Registry retrieveRegistry() {
+    public GridRegistry retrieveRegistry() {
         return getRegistry();
     }
 

@@ -18,17 +18,14 @@ import java.util.List;
 import java.util.Map;
 
 import org.openqa.grid.common.RegistrationRequest;
-import org.openqa.grid.common.exception.GridException;
-import org.openqa.grid.internal.Registry;
+import org.openqa.grid.internal.GridRegistry;
 import org.openqa.grid.internal.RemoteProxy;
 import org.openqa.grid.internal.TestSession;
 import org.openqa.grid.internal.TestSlot;
 import org.openqa.grid.internal.utils.CapabilityMatcher;
 import org.openqa.grid.internal.utils.HtmlRenderer;
 import org.openqa.grid.internal.utils.configuration.GridNodeConfiguration;
-import org.openqa.selenium.remote.internal.HttpClientFactory;
-
-import com.google.gson.JsonObject;
+import org.openqa.selenium.remote.http.HttpClient;
 
 /**
  * Created by mhardin on 2/6/14.
@@ -56,7 +53,7 @@ public class MockRemoteProxy implements RemoteProxy {
     }
 
     @Override
-    public Registry getRegistry() {
+    public GridRegistry getRegistry() {
         return null;
     }
 
@@ -133,12 +130,17 @@ public class MockRemoteProxy implements RemoteProxy {
     }
 
     @Override
-    public HttpClientFactory getHttpClientFactory() {
+    public HttpClient getHttpClient(URL url) {
         return null;
     }
 
     @Override
-    public JsonObject getStatus() throws GridException {
+    public HttpClient getHttpClient(URL url, int i, int i1) {
+        return null;
+    }
+
+    @Override
+    public Map<String, Object> getProxyStatus() {
         return null;
     }
 

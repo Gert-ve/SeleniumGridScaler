@@ -76,7 +76,7 @@ public class AutomationHubCleanupTask extends AbstractAutomationCleanupTask {
      * @return
      */
     protected Object getCreatedDate() {
-        GridHubConfiguration config = registryRetriever.retrieveRegistry().getConfiguration();
+        GridHubConfiguration config = registryRetriever.retrieveRegistry().getHub().getConfiguration();
         Object createdDate = getDate(config.custom);
         return createdDate;
     }
