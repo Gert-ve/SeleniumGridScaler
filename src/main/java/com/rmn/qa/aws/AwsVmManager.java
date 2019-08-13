@@ -92,13 +92,7 @@ public class AwsVmManager implements VmManager {
          * By default we use the credentials provided in the configuration files.
          * If there are none we fall back to IAM roles.
          */
-        try {
-            credentials = getCredentials();
-            client = new AmazonEC2Client(credentials);
-        } catch (IllegalArgumentException e) {
-            log.info("Falling back to IAM roles for authorization since no credentials provided in system properties", e);
-            client = new AmazonEC2Client();
-        }
+        client = new AmazonEC2Client();
         client.setEndpoint(awsProperties.getProperty(region + "_endpoint"));
     }
 
