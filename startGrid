@@ -1,17 +1,12 @@
-# check required params
-[ -z ${AWS_ACCESS_KEY} ] && echo "AWS_ACCESS_KEY MUST BE SET!" && exit 1
-[ -z ${AWS_SECRET_KEY} ] && echo "AWS_SECRET_KEY MUST BE SET!" && exit 1
-
 # set defaults
 [ -z ${IP_ADDRESS} ] && IP_ADDRESS=10.10.10.10
 
-java -DawsAccessKey="${AWS_ACCESS_KEY}" \
-    -DawsSecretKey="${AWS_SECRET_KEY}" \
-    -DipAddress="${IP_ADDRESS}" \
-    -cp /target/automation-grid.jar org.openqa.grid.selenium.GridLauncher \
-    -role hub \
-    -servlets "com.rmn.qa.servlet.AutomationTestRunServlet","com.rmn.qa.servlet.StatusServlet"
-
+java -DipAddress="${IP_ADDRESS}"
+    -DpropertyFileLocation=/opt/selenium/config/aws.properties
+    -cp target/automation-grid.jar org.openqa.grid.selenium.GridLauncherV3
+    -role hub
+    -servlets "com.rmn.qa.servlet.AutomationTestRunServlet"
+    -hubConfig /opt/selenium/config/hub.json
 
 
 #-DPOOL_MAX=1024 

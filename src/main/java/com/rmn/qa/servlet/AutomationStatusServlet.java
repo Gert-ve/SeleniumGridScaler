@@ -19,7 +19,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.openqa.grid.internal.Registry;
+import org.openqa.grid.internal.GridRegistry;
 import org.openqa.grid.web.servlet.RegistryBasedServlet;
 import org.openqa.selenium.Platform;
 import org.slf4j.Logger;
@@ -50,10 +50,10 @@ public class AutomationStatusServlet extends RegistryBasedServlet {
     }
 
     /**
-     * Constructs a default status servlet with the specified {@link org.openqa.grid.internal.Registry register}
+     * Constructs a default status servlet with the specified {@link org.openqa.grid.internal.GridRegistry register}
      * @param registry
      */
-    public AutomationStatusServlet(Registry registry) {
+    public AutomationStatusServlet(GridRegistry registry) {
         super(registry);
         this.requestMatcher = new AutomationRequestMatcher();
     }

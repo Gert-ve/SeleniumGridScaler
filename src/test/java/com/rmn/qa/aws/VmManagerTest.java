@@ -18,16 +18,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.junit.After;
 import org.junit.Test;
-import org.openqa.selenium.Platform;
 
 import com.amazonaws.AmazonServiceException;
-import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.ec2.model.Instance;
 import com.amazonaws.services.ec2.model.InstanceState;
 import com.amazonaws.services.ec2.model.InstanceStateChange;
@@ -37,12 +36,12 @@ import com.amazonaws.services.ec2.model.RunInstancesResult;
 import com.amazonaws.services.ec2.model.TerminateInstancesRequest;
 import com.amazonaws.services.ec2.model.TerminateInstancesResult;
 import com.rmn.qa.AutomationConstants;
-import com.rmn.qa.BaseTest;
 import com.rmn.qa.NodesCouldNotBeStartedException;
 
 import junit.framework.Assert;
+import org.openqa.selenium.Platform;
 
-public class VmManagerTest extends BaseTest {
+public class VmManagerTest {
 
     @After
     public void clear() {
@@ -54,7 +53,7 @@ public class VmManagerTest extends BaseTest {
     @Test
     // Test if an AWS access key is not set, the appropriate exception if thrown
     public void testAccessKeyNotSet() {
-        MockAmazonEc2Client client = new MockAmazonEc2Client(null);
+        MockAmazonEc2Client client = new MockAmazonEc2Client();
         Properties properties = new Properties();
         String region = "east";
         AwsVmManager AwsVmManager = new AwsVmManager(client,properties,region);
@@ -70,7 +69,7 @@ public class VmManagerTest extends BaseTest {
     @Test
     // Test if an AWS private key is not set, the appropriate exception if thrown
     public void testPrivateKeyNotSet() {
-        MockAmazonEc2Client client = new MockAmazonEc2Client(null);
+        MockAmazonEc2Client client = new MockAmazonEc2Client();
         Properties properties = new Properties();
         properties.setProperty(AutomationConstants.AWS_ACCESS_KEY,"foo");
         String region = "east";
@@ -89,7 +88,7 @@ public class VmManagerTest extends BaseTest {
     @Test
     // Test if the AWS access and private key are set, everything works
     public void testKeysSet() {
-        MockAmazonEc2Client client = new MockAmazonEc2Client(null);
+        MockAmazonEc2Client client = new MockAmazonEc2Client();
         Properties properties = new Properties();
         String accessKey = "foo",privateKey = "bar";
 
@@ -97,7 +96,7 @@ public class VmManagerTest extends BaseTest {
         properties.setProperty(AutomationConstants.AWS_PRIVATE_KEY,privateKey);
         String region = "east";
         AwsVmManager AwsVmManager = new AwsVmManager(client,properties,region);
-        AWSCredentials credentials = AwsVmManager.getCredentials();
+        BasicAWSCredentials credentials = AwsVmManager.getCredentials();
         Assert.assertEquals("Access key IDs should match",accessKey,credentials.getAWSAccessKeyId());
         Assert.assertEquals("Access key IDs should match",privateKey,credentials.getAWSSecretKey());
     }
@@ -105,7 +104,7 @@ public class VmManagerTest extends BaseTest {
     @Test
     // Test if System property access/private keys have priority over the property value ones
     public void testSystemPropertyPrecedence() {
-        MockAmazonEc2Client client = new MockAmazonEc2Client(null);
+        MockAmazonEc2Client client = new MockAmazonEc2Client();
         Properties properties = new Properties();
         String accessKey = "foo",privateKey = "bar";
         System.setProperty(AutomationConstants.AWS_ACCESS_KEY, accessKey);
@@ -114,7 +113,7 @@ public class VmManagerTest extends BaseTest {
         properties.setProperty(AutomationConstants.AWS_PRIVATE_KEY,"moreGibberish");
         String region = "east";
         AwsVmManager AwsVmManager = new com.rmn.qa.aws.AwsVmManager(client,properties,region);
-        AWSCredentials credentials = AwsVmManager.getCredentials();
+        BasicAWSCredentials credentials = AwsVmManager.getCredentials();
         Assert.assertEquals("Access key IDs should match", accessKey, credentials.getAWSAccessKeyId());
         Assert.assertEquals("Access key IDs should match", privateKey, credentials.getAWSSecretKey());
     }
@@ -122,7 +121,7 @@ public class VmManagerTest extends BaseTest {
     @Test
     // Happy path test flow for launching nodes
     public void testLaunchNodes() throws NodesCouldNotBeStartedException{
-        MockAmazonEc2Client client = new MockAmazonEc2Client(null);
+        MockAmazonEc2Client client = new MockAmazonEc2Client();
         RunInstancesResult runInstancesResult = new RunInstancesResult();
         Reservation reservation = new Reservation();
         reservation.setInstances(Arrays.asList(new Instance()));
@@ -135,7 +134,7 @@ public class VmManagerTest extends BaseTest {
         MockManageVm manageEC2 = new MockManageVm(client,properties,region);
         String userData = "userData";
         manageEC2.setUserData(userData);
-        manageEC2.launchNodes(uuid,os,browser,null,threadCount,maxSessions);
+        List<Instance> instances = manageEC2.launchNodes(uuid,os,browser,null,threadCount,maxSessions);
         RunInstancesRequest request = client.getRunInstancesRequest();
         Assert.assertEquals("Min count should match thread count requested", threadCount, request.getMinCount());
         Assert.assertEquals("Max count should match thread count requested", threadCount, request.getMaxCount());
@@ -148,7 +147,7 @@ public class VmManagerTest extends BaseTest {
     @Test
     // Test the optional fields for launching a node are indeed optional
     public void testLaunchNodesOptionalFieldsSet()  throws NodesCouldNotBeStartedException {
-        MockAmazonEc2Client client = new MockAmazonEc2Client(null);
+        MockAmazonEc2Client client = new MockAmazonEc2Client();
         RunInstancesResult runInstancesResult = new RunInstancesResult();
         Reservation reservation = new Reservation();
         reservation.setInstances(Arrays.asList(new Instance()));
@@ -182,7 +181,7 @@ public class VmManagerTest extends BaseTest {
     @Test
     // Test if multiple security groups can be passed when launching a node
     public void testLaunchNodesMultipleSecurityGroups()  throws NodesCouldNotBeStartedException {
-        MockAmazonEc2Client client = new MockAmazonEc2Client(null);
+        MockAmazonEc2Client client = new MockAmazonEc2Client();
         RunInstancesResult runInstancesResult = new RunInstancesResult();
         Reservation reservation = new Reservation();
         reservation.setInstances(Arrays.asList(new Instance()));
@@ -225,7 +224,7 @@ public class VmManagerTest extends BaseTest {
     @Test
     // Test launching an IE node works correctly
     public void testLaunchNodesIe()  throws NodesCouldNotBeStartedException {
-        MockAmazonEc2Client client = new MockAmazonEc2Client(null);
+        MockAmazonEc2Client client = new MockAmazonEc2Client();
         RunInstancesResult runInstancesResult = new RunInstancesResult();
         Reservation reservation = new Reservation();
         reservation.setInstances(Arrays.asList(new Instance()));
@@ -259,7 +258,7 @@ public class VmManagerTest extends BaseTest {
     @Test
     // Test if a bad OS is specified, it is handled correctly
     public void testLaunchNodesBadOs()  throws NodesCouldNotBeStartedException{
-        MockAmazonEc2Client client = new MockAmazonEc2Client(null);
+        MockAmazonEc2Client client = new MockAmazonEc2Client();
         RunInstancesResult runInstancesResult = new RunInstancesResult();
         Reservation reservation = new Reservation();
         reservation.setInstances(Arrays.asList(new Instance()));
@@ -289,7 +288,7 @@ public class VmManagerTest extends BaseTest {
     @Test
     // Test terminating instances works correctly
     public void testTerminateInstance() {
-        MockAmazonEc2Client client = new MockAmazonEc2Client(null);
+        MockAmazonEc2Client client = new MockAmazonEc2Client();
         String instanceId="foo";
         TerminateInstancesResult terminateInstancesResult = new TerminateInstancesResult();
         client.setTerminateInstancesResult(terminateInstancesResult);
@@ -311,7 +310,7 @@ public class VmManagerTest extends BaseTest {
     @Test
     // Tests terminating an invalid instance is handled correctly
     public void testTerminateInstanceInvalidRunningCode() {
-        MockAmazonEc2Client client = new MockAmazonEc2Client(null);
+        MockAmazonEc2Client client = new MockAmazonEc2Client();
         String instanceId="foo";
         TerminateInstancesResult terminateInstancesResult = new TerminateInstancesResult();
         client.setTerminateInstancesResult(terminateInstancesResult);
@@ -333,7 +332,7 @@ public class VmManagerTest extends BaseTest {
     @Test
     // Test terminating a valid but not matching instances is handled correctly
     public void testTerminateInstanceNoMatchingInstance() {
-        MockAmazonEc2Client client = new MockAmazonEc2Client(null);
+        MockAmazonEc2Client client = new MockAmazonEc2Client();
         String instanceId="foo";
         TerminateInstancesResult terminateInstancesResult = new TerminateInstancesResult();
         client.setTerminateInstancesResult(terminateInstancesResult);
@@ -355,11 +354,11 @@ public class VmManagerTest extends BaseTest {
     @Test
     // Tests that the terminate code works when no matching results are returned by the client
     public void testTerminateInstanceNoInstanceEmpty() {
-        MockAmazonEc2Client client = new MockAmazonEc2Client(null);
+        MockAmazonEc2Client client = new MockAmazonEc2Client();
         String instanceId="foo";
         TerminateInstancesResult terminateInstancesResult = new TerminateInstancesResult();
         client.setTerminateInstancesResult(terminateInstancesResult);
-        terminateInstancesResult.setTerminatingInstances(CollectionUtils.EMPTY_COLLECTION);
+        terminateInstancesResult.setTerminatingInstances(Collections.unmodifiableList(new ArrayList<InstanceStateChange>(0)));
         Properties properties = new Properties();
         String region = "east";
         MockManageVm manageEC2 = new MockManageVm(client,properties,region);
@@ -374,7 +373,7 @@ public class VmManagerTest extends BaseTest {
     @Test
     // Tests that the s3 config file gets injected with the correct values
     public void testS3Config() {
-        MockAmazonEc2Client client = new MockAmazonEc2Client(null);
+        MockAmazonEc2Client client = new MockAmazonEc2Client();
         Properties properties = new Properties();
         String accessKey = "foo",privateKey = "bar";
 
@@ -383,7 +382,7 @@ public class VmManagerTest extends BaseTest {
 
         String region = "east";
         MockManageVm manageEC2 = new MockManageVm(client,properties,region);
-        AWSCredentials credentials = manageEC2.getCredentials();
+        BasicAWSCredentials credentials = manageEC2.getCredentials();
         manageEC2.setCredentials(credentials);
         String s3Config = manageEC2.getS3Config();
         Assert.assertTrue("Access key should have been injected into the file", s3Config.contains(accessKey));
@@ -447,7 +446,7 @@ public class VmManagerTest extends BaseTest {
         Assert.assertTrue("Browser should have been passed in",nodeConfig.contains(browser));
         Assert.assertTrue("OS should have been passed in",nodeConfig.contains(os.toString()));
         Assert.assertTrue("Host name should have been passed in",nodeConfig.contains(hostName));
-        Assert.assertTrue("IE thread count should have been passed in", nodeConfig.contains(String.valueOf(AwsVmManager.FIREFOX_IE_THREAD_COUNT)));
+        Assert.assertTrue("IE thread count should have been passed in", nodeConfig.contains(String.valueOf(AwsVmManager.IE_THREAD_COUNT)));
     }
 
     @Test
@@ -463,7 +462,7 @@ public class VmManagerTest extends BaseTest {
         Assert.assertTrue("Browser should have been passed in",nodeConfig.contains(browser));
         Assert.assertTrue("OS should have been passed in",nodeConfig.contains(os.toString()));
         Assert.assertTrue("Host name should have been passed in",nodeConfig.contains(hostName));
-        Assert.assertTrue("IE thread count should have been passed in", nodeConfig.contains(String.valueOf(AwsVmManager.CHROME_THREAD_COUNT)));
+        // Assert.assertTrue("IE thread count should have been passed in", nodeConfig.contains(String.valueOf(AwsVmManager.CHROME_THREAD_COUNT)));
     }
 
     @Test
@@ -485,7 +484,7 @@ public class VmManagerTest extends BaseTest {
     @Test
     // Tests that if no fallback subnets are specified, the correct exception is thrown
     public void testSubnetNoFallBack() throws NodesCouldNotBeStartedException {
-        MockAmazonEc2Client client = new MockAmazonEc2Client(null);
+        MockAmazonEc2Client client = new MockAmazonEc2Client();
         AmazonServiceException exception = new AmazonServiceException("message");
         exception.setErrorCode("InsufficientInstanceCapacity");
         client.setThrowDescribeInstancesError(exception);
@@ -518,7 +517,7 @@ public class VmManagerTest extends BaseTest {
     @Test
     // Test that if a fallback subnet is specified, that the request for new nodes will fallback successfully and nodes will be spun up
     public void testSubnetFallsBackSuccessfully() throws NodesCouldNotBeStartedException {
-        MockAmazonEc2Client client = new MockAmazonEc2Client(null);
+        MockAmazonEc2Client client = new MockAmazonEc2Client();
         AmazonServiceException exception = new AmazonServiceException("message");
         exception.setErrorCode("InsufficientInstanceCapacity");
         client.setThrowDescribeInstancesError(exception);
@@ -547,7 +546,7 @@ public class VmManagerTest extends BaseTest {
     @Test
     // Tests that if the client fails for an error other than insufficient capacity, subnet fallback logic is not performed
     public void testSubnetFallBackUnknownError() throws NodesCouldNotBeStartedException {
-        MockAmazonEc2Client client = new MockAmazonEc2Client(null);
+        MockAmazonEc2Client client = new MockAmazonEc2Client();
         AmazonServiceException exception = new AmazonServiceException("message");
         client.setThrowDescribeInstancesError(exception);
         RunInstancesResult runInstancesResult = new RunInstancesResult();
@@ -579,7 +578,7 @@ public class VmManagerTest extends BaseTest {
     @Test
     // Tests that the built in guard against an infinite loop in the fallback recursive logic has a working safeguard
     public void testSubnetInfiniteLoop() throws NodesCouldNotBeStartedException {
-        MockAmazonEc2Client client = new MockAmazonEc2Client(null);
+        MockAmazonEc2Client client = new MockAmazonEc2Client();
         client.setThrowExceptionsInRunInstancesIndefinitely();
         AmazonServiceException exception = new AmazonServiceException("message");
         exception.setErrorCode("InsufficientInstanceCapacity");
@@ -617,9 +616,10 @@ public class VmManagerTest extends BaseTest {
     }
 
     @Test
-    //Tests that if the client is not initialized, an exception with appropriate message is thrown
+    //Tests that the client is initialized and exception is not thrown
     public void testClientInitialized(){
         AwsVmManager manageEC2 = new AwsVmManager();
+        String region = "east";
         try{
             manageEC2.launchNodes("foo", "bar", 4, "userData", false);
         } catch(Exception e) {

@@ -29,7 +29,7 @@ public class AwsTagReporterTest extends BaseTest {
 
     @Test
          public void testTagsAssociated() {
-        MockAmazonEc2Client client = new MockAmazonEc2Client(null);
+        MockAmazonEc2Client client = new MockAmazonEc2Client();
         Collection<Instance> instances = Arrays.asList(new Instance());
         DescribeInstancesResult describeInstancesResult = new DescribeInstancesResult();
         Reservation reservation = new Reservation();
@@ -46,7 +46,7 @@ public class AwsTagReporterTest extends BaseTest {
 
     @Test
     public void testExceptionCaught() {
-        MockAmazonEc2Client client = new MockAmazonEc2Client(null);
+        MockAmazonEc2Client client = new MockAmazonEc2Client();
         Collection<Instance> instances = Arrays.asList(new Instance());
         DescribeInstancesResult describeInstancesResult = new DescribeInstancesResult();
         Reservation reservation = new Reservation();
@@ -63,7 +63,7 @@ public class AwsTagReporterTest extends BaseTest {
 
     @Test
     public void testClientThrowsErrors() {
-        MockAmazonEc2Client client = new MockAmazonEc2Client(null);
+        MockAmazonEc2Client client = new MockAmazonEc2Client();
         client.setDescribeInstancesToThrowError();
         Collection<Instance> instances = Arrays.asList(new Instance());
         DescribeInstancesResult describeInstancesResult = new DescribeInstancesResult();
@@ -86,7 +86,7 @@ public class AwsTagReporterTest extends BaseTest {
 
     @Test
     public void testSleepThrowsErrors() {
-        MockAmazonEc2Client client = new MockAmazonEc2Client(null);
+        MockAmazonEc2Client client = new MockAmazonEc2Client();
         client.setDescribeInstancesToThrowError();
         Collection<Instance> instances = Arrays.asList(new Instance());
         DescribeInstancesResult describeInstancesResult = new DescribeInstancesResult();
@@ -109,7 +109,7 @@ public class AwsTagReporterTest extends BaseTest {
 
     @Test()
     public void testThreadTimesOut() {
-        MockAmazonEc2Client client = new MockAmazonEc2Client(null);
+        MockAmazonEc2Client client = new MockAmazonEc2Client();
         Collection<Instance> instances = Arrays.asList(new Instance());
         DescribeInstancesResult describeInstancesResult = new DescribeInstancesResult();
         Reservation reservation = new Reservation();

@@ -12,7 +12,7 @@
 
 package com.rmn.qa;
 
-import org.openqa.grid.internal.Registry;
+import org.openqa.grid.internal.GridRegistry;
 
 /**
  * Wrapper interface used to retrieve a Selenium Registry object
@@ -24,6 +24,6 @@ public interface RegistryRetriever {
      * Retrieves a Selenium Registry
      * @return
      */
-    Registry retrieveRegistry();
+    GridRegistry retrieveRegistry();
 
 }

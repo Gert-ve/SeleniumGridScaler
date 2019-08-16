@@ -14,14 +14,14 @@ package com.rmn.qa.servlet;
 
 import com.rmn.qa.RequestMatcher;
 import com.rmn.qa.aws.VmManager;
+import org.openqa.grid.internal.GridRegistry;
 import org.openqa.grid.internal.ProxySet;
-import org.openqa.grid.internal.Registry;
 
 public class MockAutomationTestRunServlet extends AutomationTestRunServlet {
 
     private ProxySet proxySet;
 
-    public MockAutomationTestRunServlet(Registry registry, boolean initThreads, VmManager ec2,RequestMatcher requestMatcher){
+    public MockAutomationTestRunServlet(GridRegistry registry, boolean initThreads, VmManager ec2, RequestMatcher requestMatcher){
         super(registry,initThreads,ec2,requestMatcher);
     }
 

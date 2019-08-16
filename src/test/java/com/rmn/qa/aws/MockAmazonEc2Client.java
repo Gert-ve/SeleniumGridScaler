@@ -36,8 +36,8 @@ public class MockAmazonEc2Client extends AmazonEC2Client {
     private TerminateInstancesResult terminateInstancesResult;
     private TerminateInstancesRequest terminateInstancesRequest;
 
-    public MockAmazonEc2Client(AWSCredentials credentials) {
-        super(credentials);
+    public MockAmazonEc2Client() {
+        super();
     }
 
 
